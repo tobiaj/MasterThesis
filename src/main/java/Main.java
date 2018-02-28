@@ -1,14 +1,24 @@
+import java.io.File;
 import java.io.IOException;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.InvalidKeyException;
 
+import database.DatabaseStorage;
+import fileservice.Fileservice;
 import org.xmlpull.v1.XmlPullParserException;
+import security.SecurityHandler;
+import storage.MinioConnection;
 
-import io.minio.MinioClient;
-import io.minio.errors.MinioException;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 
 public class Main {
-    public static void main(String[] args) throws NoSuchAlgorithmException, IOException, InvalidKeyException, XmlPullParserException {
+    public static void main(String[] args) throws NoSuchAlgorithmException, IOException, InvalidKeyException, XmlPullParserException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+
+       /*
         try {
             // Create a minioClient with the Minio Server name, Port, Access key and Secret key.
             MinioClient minioClient = new MinioClient("http://127.0.0.1:9000", "C0H2BEHW5JJMCJOXOO7H", "RQai8TfWJ1s8hvjbqsBa5EVif6ejp/kGDUCHv+cA");
@@ -28,5 +38,21 @@ public class Main {
         } catch(MinioException e) {
             System.out.println("Error occurred: " + e);
         }
+        */
+
+        SecurityHandler securityHandler = new SecurityHandler();
+        DatabaseStorage databaseStorage = new DatabaseStorage();
+        MinioConnection minioConnection = new MinioConnection();
+        Fileservice fileservice = new Fileservice(securityHandler, databaseStorage, minioConnection);
+        File file = new File("text.txt");
+
+
+        fileservice.processFileStorage(1, 1, 1, "A", file);
+
+       // aes.encryptFile(Cipher.DECRYPT_MODE, outputEncryptionFile, outputDecryptionFile);
+
+
+
+
     }
 }
