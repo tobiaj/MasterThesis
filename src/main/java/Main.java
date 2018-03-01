@@ -1,55 +1,50 @@
 import java.io.File;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
-import java.security.NoSuchAlgorithmException;
 import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import database.DatabaseStorage;
+import fileservice.FileAttachment;
 import fileservice.Fileservice;
-import org.xmlpull.v1.XmlPullParserException;
+import org.omg.Messaging.SYNC_WITH_TRANSPORT;
+import security.AES;
 import security.SecurityHandler;
 import storage.MinioConnection;
-
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 
+
 public class Main {
-    public static void main(String[] args) throws NoSuchAlgorithmException, IOException, InvalidKeyException, XmlPullParserException, NoSuchPaddingException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+    public static void main(String[] args) throws NoSuchPaddingException, InvalidKeyException, NoSuchAlgorithmException, IOException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException, ParseException {
 
-       /*
-        try {
-            // Create a minioClient with the Minio Server name, Port, Access key and Secret key.
-            MinioClient minioClient = new MinioClient("http://127.0.0.1:9000", "C0H2BEHW5JJMCJOXOO7H", "RQai8TfWJ1s8hvjbqsBa5EVif6ejp/kGDUCHv+cA");
-
-            // Check if the bucket already exists.
-            boolean isExist = minioClient.bucketExists("testing");
-            if(isExist) {
-                System.out.println("Bucket already exists.");
-            } else {
-                // Make a new bucket called asiatrip to hold a zip file of photos.
-                minioClient.makeBucket("testing");
-            }
-
-            // Upload the zip file to the bucket with putObject
-            minioClient.putObject("testing","test.zip", "dockerkeys.zip");
-            System.out.println("success");
-        } catch(MinioException e) {
-            System.out.println("Error occurred: " + e);
-        }
-        */
 
         SecurityHandler securityHandler = new SecurityHandler();
         DatabaseStorage databaseStorage = new DatabaseStorage();
         MinioConnection minioConnection = new MinioConnection();
         Fileservice fileservice = new Fileservice(securityHandler, databaseStorage, minioConnection);
-        File file = new File("text.txt");
+        File file = new File("ID2223-TEN1-2018-01-11.pdf");
 
 
-        fileservice.processFileStorage(1, 1, 1, "A", file);
+        AES aes = new AES();
 
-       // aes.encryptFile(Cipher.DECRYPT_MODE, outputEncryptionFile, outputDecryptionFile);
+        FileAttachment fileAttachment = new FileAttachment(1, 1, 1, file);
+
+        aes.encryption(fileAttachment);
+
+
+
+        //fileservice.processFileStorage(1, 1, 1, file);
+
+        fileservice.processFileRetrieval(1, 1, 1, "2018-03-01", "ID2223-TEN1-2018-01-11.pdf");
+
 
 
 

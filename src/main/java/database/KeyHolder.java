@@ -3,20 +3,18 @@ package database;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import java.util.Date;
+import java.sql.Date;
 
 @Entity
 @Table(name = "keyholder")
 public class KeyHolder {
 
     private Integer SNO;
-
     private Integer BO_SNO;
     private Integer FOLDER_SNO;
-    private String NAME;
     private Date CREATIONDATE;
     private String ENCRYPTIONKEY;
-
+    private String FILENAME;
     @Id
     private String UNIQUE_ID;
 
@@ -45,14 +43,6 @@ public class KeyHolder {
         this.FOLDER_SNO = FOLDER_SNO;
     }
 
-    public String getNAME() {
-        return NAME;
-    }
-
-    public void setNAME(String NAME) {
-        this.NAME = NAME;
-    }
-
     public Date getCREATIONDATE() {
         return CREATIONDATE;
     }
@@ -75,5 +65,13 @@ public class KeyHolder {
 
     public void setUNIQUE_ID(String UNIQUE_ID) {
         this.UNIQUE_ID = UNIQUE_ID;
+    }
+
+    public String getFILENAME() {
+        return FILENAME;
+    }
+
+    public void setFILENAME(String FILENAME) {
+        this.FILENAME = FILENAME;
     }
 }

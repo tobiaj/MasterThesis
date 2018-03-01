@@ -2,28 +2,25 @@ package fileservice;
 
 import javax.crypto.spec.IvParameterSpec;
 import java.io.File;
-import java.util.Date;
+import java.sql.Date;
 
-public class AttachmentFile {
+public class FileAttachment {
 
     private int SNO;
     private int BO_SNO;
     private int FOLDER_SNO;
-    private String companyName;
     private Date date;
     private String encryptionkey;
-    private String uniqueId;
     private File attachmentFile;
-    private File encryptedFile;
+    private String fileName;
 
     private IvParameterSpec ivParameterSpec;
 
 
-    public AttachmentFile(int sno, int bo_sno, int folder_sno, String companyName, File attachmentFile) {
+    public FileAttachment(int sno, int bo_sno, int folder_sno, File attachmentFile) {
         this.SNO = sno;
         this.BO_SNO = bo_sno;
         this.FOLDER_SNO = folder_sno;
-        this.companyName = companyName;
         this.attachmentFile = attachmentFile;
     }
 
@@ -51,14 +48,6 @@ public class AttachmentFile {
         this.FOLDER_SNO = FOLDER_SNO;
     }
 
-    public String getName() {
-        return companyName;
-    }
-
-    public void setName(String companyName) {
-        this.companyName = companyName;
-    }
-
     public Date getDate() {
         return date;
     }
@@ -75,13 +64,6 @@ public class AttachmentFile {
         this.encryptionkey = encryptionkey;
     }
 
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
-    }
 
     public File getAttachmentFile() {
         return attachmentFile;
@@ -91,19 +73,19 @@ public class AttachmentFile {
         this.attachmentFile = attachmentFile;
     }
 
-    public File getEncryptedFile() {
-        return encryptedFile;
-    }
-
-    public void setEncryptedFile(File encryptedFile) {
-        this.encryptedFile = encryptedFile;
-    }
-
     public IvParameterSpec getIvParameterSpec() {
         return ivParameterSpec;
     }
 
     public void setIvParameterSpec(IvParameterSpec ivParameterSpec) {
         this.ivParameterSpec = ivParameterSpec;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

@@ -24,19 +24,53 @@ public class Fileservice {
         this.minioConnection = minioConnection;
 
     }
-    public void processFileStorage(int SNO, int BO_SNO, int FOLDER_SNO, String companyName, File inputFile) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IOException, IllegalBlockSizeException {
+    public void processFileStorage(int SNO, int BO_SNO, int FOLDER_SNO, File inputFile) throws InvalidAlgorithmParameterException, NoSuchAlgorithmException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IOException, IllegalBlockSizeException {
 
-        AttachmentFile attachmentFile = new AttachmentFile(SNO, BO_SNO, FOLDER_SNO, companyName, inputFile);
+        FileAttachment fileAttachment = new FileAttachment(SNO, BO_SNO, FOLDER_SNO, inputFile);
+        fileAttachment.setFileName(inputFile.getName());
+        securityHandler.encryption(fileAttachment);
+        boolean success = false;
 
-        securityHandler.encryption(attachmentFile);
-        System.out.println(attachmentFile.getAttachmentFile().getName());
-        securityHandler.decryption(attachmentFile);
+        /**How to check if file is encrypted**/
+        if (fileAttachment.getAttachmentFile().getName().split("-")[0].equals("encrypted")){
+           success =  minioConnection.uploadToStorage(fileAttachment);
+        }
+        else{
+            System.out.println("Encryption failed");
+        }
+
+        if (success){
+
+            databaseStorage.storeKeys(fileAttachment);
+        }
+
+        // securityHandler.decryption(fileAttachment);
 
 
 
     }
 
-    public void processFileRetrieval(){
+    public void processFileRetrieval(int SNO, int BO_SNO, int FOLDER_SNO, String date, String fileName){
+
+        FileMetadata fileMetadata = new FileMetadata(SNO, BO_SNO, FOLDER_SNO, date, fileName);
+        boolean success = false;
+
+        success = minioConnection.retrieveFromStorage(fileMetadata);
+
+        if (success){
+
+            String key = databaseStorage.getKey(fileMetadata);
+            System.out.println("Fileservice got key: " + key);
+            if (!key.isEmpty()){
+
+                File newFile = new File("" + fileMetadata.getFileName());
+                //securityHandler.decryption(newFile, key);
+            }
+        }
+        else {
+            System.out.println("Retriveal ");
+        }
+
 
     }
 

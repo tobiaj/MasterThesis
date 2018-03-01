@@ -1,6 +1,6 @@
 package security;
 
-import fileservice.AttachmentFile;
+import fileservice.FileAttachment;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
@@ -15,27 +15,9 @@ public class AES {
     private static final String AES_MODE = "AES/CBC/PKCS5Padding";
 
 
-    public void processFile(int mode, AttachmentFile attachmentFile) throws NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException, BadPaddingException, IllegalBlockSizeException, IOException, InvalidAlgorithmParameterException {
+    public void encryption(FileAttachment fileAttachment) throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IOException, InvalidAlgorithmParameterException {
 
-
-        if (mode == 1){
-
-            encryption(attachmentFile);
-        }
-        else if (mode == 2) {
-
-            decryption(attachmentFile);
-        }
-
-        else {
-            System.out.println("No match on security mode");
-        }
-
-    }
-
-    private void encryption(AttachmentFile attachmentFile) throws NoSuchAlgorithmException, IllegalBlockSizeException, InvalidKeyException, NoSuchPaddingException, BadPaddingException, IOException, InvalidAlgorithmParameterException {
-
-        File inputFile = attachmentFile.getAttachmentFile();
+        File inputFile = fileAttachment.getAttachmentFile();
         String fileName = inputFile.getName();
 
         File outputFile = new File("encrypted-" + fileName);
@@ -43,35 +25,40 @@ public class AES {
         /******************Generate secret key and save it as string for database storage*******************/
         SecretKey secretKey = createSecretKey();
         String encodedKey = Base64.getEncoder().encodeToString(secretKey.getEncoded());
-        attachmentFile.setEncryptionkey(encodedKey);
+        fileAttachment.setEncryptionkey(encodedKey);
 
         byte[] initializationVector = new byte[128/8];
         SecureRandom secureRandom = new SecureRandom();
         secureRandom.nextBytes(initializationVector);
         IvParameterSpec ivParameterSpec = new IvParameterSpec(initializationVector);
 
-        attachmentFile.setIvParameterSpec(ivParameterSpec);
+        fileAttachment.setIvParameterSpec(ivParameterSpec);
 
-        File result = processEncryptionDecryption(1, secretKey, attachmentFile.getAttachmentFile(), outputFile, ivParameterSpec);
+        File result = processEncryptionDecryption(Cipher.ENCRYPT_MODE, secretKey, fileAttachment.getAttachmentFile(), outputFile, ivParameterSpec);
+        System.out.println("Encryption finished");
 
-        attachmentFile.setEncryptedFile(result);
+        fileAttachment.setAttachmentFile(result);
+
     }
 
-    private void decryption(AttachmentFile attachmentFile) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IOException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
+    public void decryption(FileAttachment fileAttachment) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, BadPaddingException, IOException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
 
-        File inputFile = attachmentFile.getEncryptedFile();
+        File inputFile = fileAttachment.getAttachmentFile();
         String fileName = inputFile.getName();
         File outputFile = new File("decrypted-" + fileName);
 
 
         /******************Generate secret key from database storage*******************/
-        byte[] decodedKey = Base64.getDecoder().decode(attachmentFile.getEncryptionkey().getBytes());
+        byte[] decodedKey = Base64.getDecoder().decode(fileAttachment.getEncryptionkey().getBytes());
         SecretKey orignialSecretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
 
-        IvParameterSpec ivParameterSpec = attachmentFile.getIvParameterSpec();
+        IvParameterSpec ivParameterSpec = fileAttachment.getIvParameterSpec();
 
+        File result = processEncryptionDecryption(Cipher.DECRYPT_MODE, orignialSecretKey, inputFile, outputFile, ivParameterSpec);
+        fileAttachment.setAttachmentFile(result);
 
-        processEncryptionDecryption(2, orignialSecretKey, inputFile, outputFile, ivParameterSpec);
+        System.out.println("Decryption finished");
+
 
     }
 
@@ -85,7 +72,6 @@ public class AES {
         FileOutputStream out = new FileOutputStream(outputFile);
         int inputFileSize = (int) inputFile.length();
         byte[] inputBuffer = new byte[inputFileSize];
-        System.out.println(inputBuffer.length);
         int length;
         while ((length = in.read(inputBuffer)) != -1) {
             byte[] outputBuffer = cipher.update(inputBuffer, 0, length);
@@ -102,8 +88,6 @@ public class AES {
         in.close();
         out.flush();
         out.close();
-
-        System.out.println("Encryption finished");
 
         return outputFile;
     }
